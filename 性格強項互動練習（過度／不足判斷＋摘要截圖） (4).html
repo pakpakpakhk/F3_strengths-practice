@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>性格強項互動練習｜過度／不足判斷</title>
+<style>
+  :root{ --mc-maroon:#7A0019; --mc-gold:#C8A200; --ink:#1f2430; --muted:#667085; --bg:#fff8f6; --card:#ffffff; }
+  html,body{height:100%;}
+  body{margin:0;font-family:"Noto Sans TC", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "PingFang TC","Microsoft JhengHei", sans-serif;background:var(--bg);color:var(--ink);font-size:18px;-webkit-text-size-adjust:110%;}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 72px;}
+  .hero{background:linear-gradient(120deg, rgba(122,0,25,.95), rgba(200,162,0,.9));color:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 30px rgba(122,0,25,.18);} 
+  .hero h1{font-size:24px;margin:0 0 2px}
+  .hero p{margin:0;opacity:.92}
+  .card{background:var(--card);border:1px solid #f0e7e7;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.05);padding:18px;margin:16px 0}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  label{font-weight:700;font-size:1.05rem}
+  select,button,textarea{font-family:inherit}
+  select,button{height:52px;border-radius:12px;border:1px solid #e6e6e6;padding:0 14px}
+  button{background:var(--mc-maroon);color:#fff;border:none;cursor:pointer;transition:.2s transform ease, .2s filter ease}
+  button:hover{filter:brightness(1.05)}
+  button:active{transform:translateY(1px)}
+  button.secondary{background:#fff;color:var(--mc-maroon);border:1px solid var(--mc-maroon)}
+  .scenario{font-size:20px;line-height:1.7;background:#fff;border-left:6px solid var(--mc-gold);padding:16px;border-radius:12px}
+  .pill{display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;border:1px solid #ddd;color:#444;background:#fff}
+  .pill.over{border-color:#fecaca; background:#fff1f2; color:#991b1b}
+  .pill.under{border-color:#bfdbfe; background:#eff6ff; color:#1e3a8a}
+  .feedback{font-weight:800;margin:8px 0 0;padding:8px 10px;border-radius:10px;display:inline-flex;gap:8px;align-items:center}
+  .ok{color:#065f46;background:#ecfdf5;border:1px solid #d1fae5}
+  .bad{color:#991b1b;background:#fef2f2;border:1px solid #fee2e2}
+  .q label{display:block;margin:.25rem 0 .35rem;font-weight:800}
+  textarea{width:100%;min-height:150px;border:1px solid #e6e6e6;border-radius:12px;padding:12px;resize:vertical;background:#fff}
+  .summary{background:#fff;border:2px dashed var(--mc-maroon);border-radius:18px;padding:16px;overflow-wrap:anywhere;word-wrap:break-word;white-space:normal}
+  .summary h3{margin:0 0 8px}
+  .muted{color:var(--muted)}
+  .footer{margin-top:28px;color:var(--muted);font-size:12px;text-align:center}
+  .grid{display:grid;gap:12px}
+  @media(min-width:780px){.grid{grid-template-columns:1fr 1fr}}
+.section-title{margin:0 0 8px;font-size:20px;color:var(--mc-maroon);font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <h1>性格強項互動練習｜過度（誤用）／不足（未被充分運用）</h1>
+      <p>流程：揀 1 強項 → 系統情境 → 判斷 → 回答 3 題 → （個人）My situation → 選過度/不足 → 改善方法 → 本週行動承諾 → 摘要</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div style="flex:1 1 320px">
+        <label for="strength">選擇性格強項</label><br>
+        <select id="strength"></select>
+      </div>
+      <div style="align-self:end;display:flex;gap:8px">
+        <button id="startBtn">開始本回合</button>
+        <button class="secondary" id="randomAll">隨機強項</button>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:8px">系統會在你選的強項中，<b>隨機</b>抽出「過度」或「不足」情境。</p>
+  </div>
+
+  <div id="workArea" class="card" style="display:none">
+    <!-- A. 系統情境與判斷 -->
+    <h2 class="section-title">[平衡木]練習</h2>
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px">
+      <div><span class="pill" id="strengthTag">—</span></div>
+      <div>
+        <span class="pill over">過度（誤用）</span>
+        <span class="pill under">不足（未被充分運用）</span>
+      </div>
+    </div>
+    <div class="scenario" id="scenarioText">—</div>
+    <div style="margin-top:12px">
+      <label>你對上面「系統情境」的判斷</label><br>
+      <label><input type="radio" name="pick" value="過度"> 我認為是：<b>過度（誤用）</b></label>
+      &nbsp;&nbsp;
+      <label><input type="radio" name="pick" value="不足"> 我認為是：<b>不足（未被充分運用）</b></label>
+      <div id="fb" class="feedback" style="display:none"></div>
+    </div>
+
+    <hr style="margin:16px 0">
+
+    <!-- B. 三條問題（針對系統情境） -->
+    <div class="grid">
+      <div class="q">
+        <label>1) 理由（為甚麼判斷為「過度／不足」？）</label>
+        <textarea id="qReason" placeholder="例：行為份量超出需要／用得太少未達標；結合同伴／導師回饋……"></textarea>
+      </div>
+      <div class="q">
+        <label>2) 受影響的人／情境</label>
+        <textarea id="qImpact" placeholder="例：我自己、組員、課室氣氛、比賽表現、時間管理……"></textarea>
+      </div>
+      <div class="q">
+        <label>3) 把用量調至「充分利用」的方法（具體 1–2 步）</label>
+        <textarea id="qAdjust" placeholder="例：先詢問意願；把發問限於 2 條；邀請同伴回饋；設定時限或次數……"></textarea>
+      </div>
+    </div>
+
+    <hr style="margin:16px 0">
+
+    <!-- C. 學生個人：My situation（在所選強項中） -->
+    <h2 class="section-title">自我反省 / 挑戰</h2>
+    <div class="card" style="background:#fffdf7;border-color:#fde68a">
+      <label>My situation｜我的情境（與你選的性格強項相關）</label><br>
+      <label style="font-weight:600"><input type="radio" name="mytype" value="過度"> 我認為：<b>過度（誤用）</b></label>
+      &nbsp;&nbsp;
+      <label style="font-weight:600"><input type="radio" name="mytype" value="不足"> 我認為：<b>不足（未被充分運用）</b></label>
+      <div class="q" style="margin-top:8px">
+        <label>請描述你的真實情境</label>
+        <textarea id="myDesc" placeholder="例：在中文口語評核／分組匯報／體育練習中，出現了＿＿（行為），我覺得用量＿＿。"></textarea>
+      </div>
+      <div class="q" style="margin-top:8px">
+        <label>改善方法（把用量調至「充分利用」，具體 1–2 步）</label>
+        <textarea id="myAdjust" placeholder="例：先與組員確認發言次序；限制自己提問不多於 2 條；先收集回饋再決定……"></textarea>
+      </div>
+    </div>
+
+    <div class="q" style="margin-top:8px">
+      <label>本週行動承諾（7 天內可完成、可量度）</label>
+      <textarea id="qCommit" placeholder="例：在小組討論中運用團隊精神，確保每位至少發言一次，由我邀請與總結。"></textarea>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="secondary" id="resetPick">重設選擇</button>
+      <button id="finishBtn">完成本回合並產生摘要</button>
+    </div>
+  </div>
+
+  <div id="summaryCard" class="card" style="display:none">
+    <div class="summary" id="summaryContent"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button id="downloadPng">下載摘要 PNG（可上載）</button>
+      <button class="secondary" id="newRound">再來一題</button>
+    </div>
+    <p class="muted" style="margin-top:8px">亦可直接使用裝置截圖鍵提交；此 PNG 只包含上方摘要卡。</p>
+  </div>
+
+  <div class="footer">Methodist College • Positive Education ｜ © 2025</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const data = {
+  "創造力": {過度:"為追求新穎你不停改方案，導致小組無法定稿、進度延誤。", 不足:"沿用去年的模板不願嘗試改良，作品與目標受眾不匹配。"},
+  "好奇心": {過度:"參觀時連珠發問偏離主題，打斷導賞流程。", 不足:"有疑問不敢問，錯過釐清關鍵概念的時機。"},
+  "開明思想": {過度:"凡事都覺得有道理，遲遲不作決定，拖慢組內定向。", 不足:"先入為主拒聽反方意見，錯過更完整的論點。"},
+  "喜愛學習": {過度:"沉迷鑽研冷門工具，分散核心科目溫習時間。", 不足:"只求過關不主動查資料，作業缺乏深度。"},
+  "洞察力": {過度:"過度解讀同學一句說話，私下四處求證引起緊張。", 不足:"明知同學情緒不對仍裝作看不見，未主動關心。"},
+  "勇敢": {過度:"未評估風險就率先示範高難度動作，影響安全。", 不足:"明知不公仍沉默，不敢向老師／同學表達立場。"},
+  "毅力": {過度:"堅持原方案不願調整，忽視實際限制與回饋。", 不足:"遇到第一次挫折便放棄，任務半途而廢。"},
+  "正直": {過度:"當面直斥同學錯處用詞過硬，引起對立。", 不足:"看見抄襲裝作不知情，任由不公平發生。"},
+  "熱情與幹勁": {過度:"一口氣接太多工作到深夜，翌日學習效率低。", 不足:"對任何活動都提不起勁，缺乏啟動與投入。"},
+  "寬恕": {過度:"同學一再失責你次次原諒，未設界線，問題重複。", 不足:"緊記他人舊錯而拒絕合作，關係僵化。"},
+  "謙遜": {過度:"被稱讚時全部否認，自我貶低令組員誤判你能力。", 不足:"過度強調自己功勞，不願承認他人貢獻。"},
+  "審慎": {過度:"反覆潤稿追求零錯，錯過截止與排練時間。", 不足:"未檢查就匆忙提交，錯漏百出。"},
+  "自我規範": {過度:"嚴苛時間表逼自己生病仍硬撐，身心失衡。", 不足:"沒有學習規律與自律，臨急抱佛腳成效低。"},
+  "對美麗和卓越的欣賞": {過度:"參觀只顧拍攝細節，落後隊伍且干擾他人。", 不足:"對優秀作品／表現毫無反應，不懂欣賞與學習。"},
+  "感恩": {過度:"在大群高調致謝令對方尷尬，忽略其感受。", 不足:"別人幫忙視作理所當然，未表達謝意。"},
+  "希望": {過度:"過分樂觀忽略風險與補救計劃。", 不足:"悲觀預期最差狀況，不願嘗試改善。"},
+  "幽默感": {過度:"考試公布／嚴肅場合講笑，令同學感到被嘲。", 不足:"全程繃緊零幽默，導致溝通僵硬氣氛緊張。"},
+  "靈修性": {過度:"過度分享個人信念，忽視他人背景與感受。", 不足:"對價值／意義的探索完全避而不談，缺少內在指引。"},
+  "團隊精神": {過度:"為顧大局常常幫人『補位』，自己過度負擔。", 不足:"只顧自己部分，不主動支援與協調。"},
+  "公平": {過度:"機械式平均分工，不理能力與需要差異。", 不足:"偏向熟悉的人分配資源，忽略公正程序。"},
+  "領導才能": {過度:"一言堂拍板，不給組員參與空間。", 不足:"明明需要協調仍推諉，不願承擔帶領角色。"},
+  "愛": {過度:"過度投入照顧朋友情緒，犧牲自己休息與學習。", 不足:"身邊人明顯低落也不主動關心或回應。"},
+  "仁慈": {過度:"見同學未完成就直接幫手代做，令其失去承擔。", 不足:"看見需要也袖手旁觀，缺乏支援行動。"},
+  "社交智慧": {過度:"避免衝突而不敢給真誠回饋，問題積累。", 不足:"不理會對方感受，說話直衝衝易傷人。"}
+};
+
+const strengthSelect = document.getElementById('strength');
+const startBtn = document.getElementById('startBtn');
+const randomAll = document.getElementById('randomAll');
+const workArea = document.getElementById('workArea');
+const scenarioText = document.getElementById('scenarioText');
+const strengthTag = document.getElementById('strengthTag');
+const fb = document.getElementById('fb');
+const resetPick = document.getElementById('resetPick');
+const finishBtn = document.getElementById('finishBtn');
+const summaryCard = document.getElementById('summaryCard');
+const summaryContent = document.getElementById('summaryContent');
+const newRound = document.getElementById('newRound');
+const downloadPng = document.getElementById('downloadPng');
+
+function esc(str){ return String(str||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+
+Object.keys(data).forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; strengthSelect.appendChild(o); });
+
+let current = null; // {strength, tag, text, userPick}
+
+function pickScenario(fromRandomPool=false){
+  const keys = Object.keys(data);
+  const s = fromRandomPool ? keys[Math.floor(Math.random()*keys.length)] : (strengthSelect.value || keys[0]);
+  const tags = ["過度","不足"]; const tag = tags[Math.random()<0.5?0:1];
+  const text = data[s][tag];
+  current = {strength:s, tag, text, userPick:null};
+  strengthTag.textContent = `【${s}】`;
+  scenarioText.textContent = text;
+  fb.style.display = 'none'; fb.textContent=''; fb.className='feedback';
+  // reset fields
+  Array.from(document.querySelectorAll('input[name="pick"]')).forEach(r=>{r.checked=false; r.disabled=false;});
+  Array.from(document.querySelectorAll('input[name="mytype"]')).forEach(r=>{r.checked=false;});
+  ['qReason','qImpact','qAdjust','myDesc','myAdjust','qCommit'].forEach(id=>document.getElementById(id).value='');
+}
+
+startBtn.addEventListener('click', ()=>{ pickScenario(false); workArea.style.display='block'; summaryCard.style.display='none'; window.scrollTo({top:workArea.offsetTop-8, behavior:'smooth'}); });
+randomAll.addEventListener('click', ()=>{ pickScenario(true); workArea.style.display='block'; summaryCard.style.display='none'; window.scrollTo({top:workArea.offsetTop-8, behavior:'smooth'}); });
+
+Array.from(document.querySelectorAll('input[name="pick"]')).forEach(r=>{
+  r.addEventListener('change', e=>{
+    if(!current) return;
+    current.userPick = e.target.value;
+    const correct = (current.userPick === current.tag);
+    fb.style.display='inline-flex';
+    if(correct){ fb.className='feedback ok'; fb.textContent='✅ 正確！這屬於「'+current.tag+'」。'; }
+    else{ fb.className='feedback bad'; fb.textContent='❌ 未中。正確為「'+current.tag+'」。'; }
+  });
+});
+
+resetPick.addEventListener('click', ()=>{
+  ['qReason','qImpact','qAdjust','myDesc','myAdjust','qCommit'].forEach(id=>document.getElementById(id).value='');
+  Array.from(document.querySelectorAll('input[name="pick"]')).forEach(r=>{r.checked=false;});
+  Array.from(document.querySelectorAll('input[name="mytype"]')).forEach(r=>{r.checked=false;});
+  fb.style.display='none'; if(current) current.userPick=null;
+});
+
+finishBtn.addEventListener('click', ()=>{
+  if(!current){ alert('請先按「開始本回合」。'); return; }
+  const reason = document.getElementById('qReason').value.trim();
+  const impact = document.getElementById('qImpact').value.trim();
+  const adjust = document.getElementById('qAdjust').value.trim();
+  const myType = (document.querySelector('input[name="mytype"]:checked')||{}).value || '—';
+  const myDesc = document.getElementById('myDesc').value.trim();
+  const myAdjust = document.getElementById('myAdjust').value.trim();
+  const commit = document.getElementById('qCommit').value.trim();
+  const ts = new Date();
+  const judged = current.userPick ? current.userPick : '—';
+  const feedback = current.userPick ? (current.userPick===current.tag? '✅ 正確':'❌ 錯誤') : '—';
+
+  summaryContent.innerHTML = `
+    <h3>練習摘要（可截圖上交）</h3>
+    <div class="muted">時間：${esc(ts.toLocaleString())}</div>
+    <p><b>性格強項：</b>${esc(current.strength)}</p>
+
+    <p><b>系統情境：</b>${esc(current.text)}</p>
+    <p><b>你的判斷：</b>${esc(judged)}　｜　<b>系統回饋：</b>${esc(feedback)}（正解：${esc(current.tag)}）</p>
+    <p><b>Q1 理由：</b>${esc(reason) || '（未填）'}</p>
+    <p><b>Q2 受影響的人／情境：</b>${esc(impact) || '（未填）'}</p>
+    <p><b>Q3 調至「充分利用」的方法：</b>${esc(adjust) || '（未填）'}</p>
+    <hr>
+    <p><b>My situation｜我的情境：</b>${esc(myType)}｜${esc(myDesc) || '（未填）'}</p>
+    <p><b>我的改善方法：</b>${esc(myAdjust) || '（未填）'}</p>
+    <p><b>本週行動承諾（7 天內可完成、可量度）：</b>${esc(commit) || '（未填）'}</p>
+  `;
+
+  summaryCard.style.display='block';
+  window.scrollTo({top:summaryCard.offsetTop-8, behavior:'smooth'});
+});
+
+downloadPng.addEventListener('click', ()=>{
+  const node = document.getElementById('summaryContent');
+  html2canvas(node, {backgroundColor:'#ffffff', scale:2}).then(canvas=>{
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    const s = current? current.strength : 'strength';
+    a.download = `摘要_${s}_${Date.now()}.png`;
+    a.click();
+  });
+});
+
+newRound.addEventListener('click', ()=>{ pickScenario(false); summaryCard.style.display='none'; workArea.style.display='block'; window.scrollTo({top:workArea.offsetTop-8, behavior:'smooth'}); });
+
+strengthSelect.selectedIndex = 0;
+</script>
+</body>
+</html>
